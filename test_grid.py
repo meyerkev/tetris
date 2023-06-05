@@ -196,6 +196,31 @@ def test_stack_z():
         assert g.highest() == height 
         height += 1
 
+def test_stack_z_t():
+    g = tetris.Grid()
+    g.drop_shape(shapes.Z, 0)
+    assert g.highest() == 2
+    g.drop_shape(shapes.T, 2)
+    assert g.highest() == 2
+
+    g2 = tetris.Grid()
+    g2.drop_shape(shapes.Z, 2)
+    g2.drop_shape(shapes.T, 0)
+    print (g2)
+    assert g2.highest() == 3
+
+def test_stack_t_s():
+    g = tetris.Grid()
+    g.drop_shape(shapes.S, 2)
+    assert g.highest() == 2
+    g.drop_shape(shapes.T, 0)
+    assert g.highest() == 2
+
+    g2 = tetris.Grid()
+    g2.drop_shape(shapes.S, 2)
+    g2.drop_shape(shapes.T, 1)
+    assert g2.highest() == 3
+
 SAMPLE_INPUT = """
 Q0
 Q0,Q1
