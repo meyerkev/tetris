@@ -27,9 +27,7 @@ class Grid():
     """
     So let's talk about how grids work. We have a 2D array of squares, and we want to insert squares into the top of our grid.
 
-    Now in real Tetris, they hard-code the number of rows and if you fill the grid, you fill the grid.
-
-    But ours must be infinite bounded by our 128GB of RAM and 1TB Swap SSD.
+    Now in real Tetris, they hard-code the number of rows and if you fill the grid, you fill the grid.  Ours is not hard-coded though.
 
     So the bottom row is row 0 and the top row is row N.  We want to insert squares into the top of our grid.
     """
