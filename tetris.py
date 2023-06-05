@@ -59,17 +59,16 @@ class Grid():
         self.move_count = 0
 
     def __getitem__(self, item):
-        return self.get_row(item)
+        """
+        Subscribe to the grid like a list
+        This currently doesn't do slices, but it could
 
-    def get_row(self, index: int) -> List:
+        Possible bug for future me, if someone accidentally does grid[1,000,000], 
+        it will allocate 1 Million empty rows
         """
-        Return the row at the given index, creating it if needed
-        """
-        # I did a tricky thing with __getitem__ to allocate my rows for me, but still be careful to pre-allocate rows
-        # if you're doing work on self.grid directly.
-        for _ in range(index - len(self.rows) + 1):
+        for _ in range(item - len(self.rows) + 1):
             self.rows.append(self.new_row())
-        return self.rows[index]
+        return self.rows[item]
 
     @classmethod
     def new_row(cls):
@@ -104,17 +103,9 @@ class Grid():
             col = column + i
             drop_height = max(drop_height, self.tops[col] - shape.bottoms[i])
 
-        # Create new rows if needed
-        self.get_row(drop_height + shape.height)
-
         # Mark all the squares as full, creating new rows if needed
         for square in shape.squares:
-            self.get_row(
-                square[1] +
-                drop_height)[
-                square[0] +
-                column] = self.move_count
-            # self.rows[square[1] + drop_height][square[0] + column] = self.FULL_SQUARE
+            self[square[1] + drop_height][square[0] + column] = self.move_count
 
         # Scan every row that had new squares added to it to see if they're full or not
         # I'm doing it in reverse order because if I remove row 7, row 8 becomes row 7
@@ -123,7 +114,7 @@ class Grid():
         to_remove = []
         for row_index in range(
                 drop_height + shape.height, drop_height - 1, -1):
-            row = self.rows[row_index]
+            row = self[row_index]
             if self.row_full(row):
                 to_remove.append(row_index)
 
@@ -148,7 +139,7 @@ class Grid():
         for column_index in range(self.ROW_WIDTH):
             # Find the first row that's not empty
             for row_index in range(len(self.rows) - 1, -1, -1):
-                if self.rows[row_index][column_index] != self.EMPTY_SQUARE:
+                if self[row_index][column_index] != self.EMPTY_SQUARE:
                     self.tops[column_index] = row_index + 1
                     break
             else:
@@ -156,7 +147,7 @@ class Grid():
 
     def highest(self) -> int:
         """
-        return the maximum height of the grid
+        return the maximum height of the rows with shapes in them for the grid
         """
         return max(self.tops)
 
