@@ -36,6 +36,11 @@ class Grid():
     # Future cleanup, take this as an input
     ROW_WIDTH = 10
 
+    # The problem statement says that the grid is <= 100 rows tall
+    # But internally, I did some testing that wanted more than that
+    # So I'm going to set this to 1000
+    MAX_HEIGHT = 1000
+
     # This can be almost anything, but in our codebase
     # 1. sum(s != EMPTY_SQUARE) == ROW_WIDTH to mean that the row is full
     # 2. all(s == EMPTY_SQUARE to mean that the row is empty
@@ -62,12 +67,21 @@ class Grid():
         """
         Subscribe to the grid like a list
         This currently doesn't do slices, but it could
-
-        Possible bug for future me, if someone accidentally does grid[1,000,000], 
-        it will allocate 1 Million empty rows
         """
+        # Negative indexing of existing rows
+        # I debated just removing this entirely, but self[-1] is just a useful debugging trick
+        if item < 0:  
+            return self.rows[item]
+    
+        # Cap ourselves at the maximum height
+        if item >= self.MAX_HEIGHT:
+            raise IndexError(f"Grid too tall.  The maximum height is {self.MAX_HEIGHT}")
+
+        # If we're asking for a row that doesn't exist, create it and every row in between
         for _ in range(item - len(self.rows) + 1):
             self.rows.append(self.new_row())
+
+        # Return the row
         return self.rows[item]
 
     @classmethod

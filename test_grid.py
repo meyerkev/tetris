@@ -295,9 +295,41 @@ ANSWERS = [
     3,
 ]
 
-
 def test_sample_input():
     for line, expected_result in zip(SAMPLE_INPUT, ANSWERS):
         g = tetris.Grid()
         tetris.process_line(g, line)
         assert g.highest() == expected_result
+
+def test_indexing():
+    # Make a grid
+    # Allocate one row
+    g = tetris.Grid()
+    assert g[0]
+
+    # Go get that row with negative indexing
+    try:
+        g[-1]
+        assert True
+    except IndexError:
+        assert False
+
+    # There isn't a second row from the top yet
+    try:
+        g[-2]
+        assert False
+    except IndexError:
+        assert True
+
+    # Make a billion rows
+    assert g[tetris.Grid.MAX_HEIGHT - 1]
+    
+    # But then try to make one two many
+    try:
+        g[tetris.Grid.MAX_HEIGHT]
+        assert False
+    except IndexError:
+        assert True
+    
+    # Get that row that didn't exist yet.  
+    assert g[-1]
