@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+
+import argparse
 import shapes
 from sys import stdin
 from typing import List
@@ -88,7 +91,7 @@ class Grid():
         # Figure out how high it's going
         drop_height = 0
 
-        # A shape is a partial infill of a rectangluar bounding box
+        # A shape is a partial infill of a rectangular bounding box
         # So we need to find that bounding box using the highest point in each column 
         # accounting for missing squares on the bottom of the shape
         for i in range(shape.width):
@@ -184,7 +187,7 @@ class Grid():
             
 
 # Because I'm storing state as a grid object, I'm making a call to return None here
-def process_line(grid: Grid, line: str) -> None:
+def process_line(grid: Grid, line: str, debug: bool = False) -> None:
     line = line.rstrip()
     for move in line.split(","):
         # All shapes are single-character
@@ -192,22 +195,25 @@ def process_line(grid: Grid, line: str) -> None:
         shape = shapes.get_shape(shape_name)
         grid.drop_shape(shape, column)
 
-        '''
-        print(shape_name, column)
-        print(grid)
-        print("Tops: " + str(grid.tops))
-        print("Highest: " + str(grid.highest()))
-        print()
-        # '''
+        # This is a useful debugging tool
+        if debug:
+            print(shape_name, column)
+            print(grid)
+            print("Tops: " + str(grid.tops))
+            print("Highest: " + str(grid.highest()))
+            print()
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Tetris solver for DRW")
+    parser.add_argument("--debug", action="store_true", help="Debug mode")
+    return parser.parse_args()
 
 def main():
-    grid = Grid()
+    debug = parse_args().debug
     for line in stdin:
-        process_line(grid, line)
-        print()
-        print(line.rstrip())
+        grid = Grid()
+        process_line(grid, line, debug)
         print(grid.highest())
-    print(grid)
     
 if __name__ == "__main__":
     main()
