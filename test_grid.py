@@ -1,3 +1,9 @@
+"""
+Test the grid class and the process_line function
+"""
+
+# pylint: disable=missing-function-docstring,invalid-name
+
 import shapes
 import tetris
 
@@ -13,6 +19,7 @@ def test_q():
     grid.drop_shape(shapes.Q, 0)
     assert grid.highest() == 2
 
+
 def test_q_with_i():
     grid = tetris.Grid()
     grid.drop_shape(shapes.Q, 0)
@@ -24,20 +31,24 @@ def test_q_with_i():
     grid.drop_shape(shapes.I, 6)
     assert grid.highest() == 0
 
+
 def test_example1():
     g = tetris.Grid()
     tetris.process_line(g, "I0,I4,Q8")
     assert g.highest() == 1
+
 
 def test_example2():
     g = tetris.Grid()
     tetris.process_line(g, "T1,Z3,I4")
     assert g.highest() == 4
 
+
 def test_example3():
     g = tetris.Grid()
     tetris.process_line(g, "Q0,I2,I6,I0,I6,I6,Q2,Q4")
     assert g.highest() == 3
+
 
 def test_missing_upper_line():
     """
@@ -57,10 +68,11 @@ def test_missing_upper_line():
     # Because we blew away the missing line
     assert g.highest() == 2
 
-    #drop two more I's
+    # drop two more I's
     g.drop_shape(shapes.I, 2)
     g.drop_shape(shapes.I, 6)
     assert g.highest() == 1
+
 
 def test_open():
     # Drop a Z and an S
@@ -78,6 +90,7 @@ def test_open():
 
     g.drop_shape(shapes.T, 6)
     assert g.highest() == 3
+
 
 def test_single_shapes():
     g = tetris.Grid()
@@ -108,6 +121,7 @@ def test_single_shapes():
     g.drop_shape(shapes.J, 0)
     assert g.highest() == 3
 
+
 def test_stack_every_shape():
     g = tetris.Grid()
     g.drop_shape(shapes.Q, 0)
@@ -125,12 +139,14 @@ def test_stack_every_shape():
     g.drop_shape(shapes.J, 0)
     assert g.highest() == 15
 
+
 def test_stack_s_z():
     g = tetris.Grid()
     g.drop_shape(shapes.S, 2)
     assert g.highest() == 2
     g.drop_shape(shapes.Z, 0)
     assert g.highest() == 3
+
 
 def test_stack_z_s():
     g2 = tetris.Grid()
@@ -139,15 +155,18 @@ def test_stack_z_s():
     g2.drop_shape(shapes.S, 2)
     assert g2.highest() == 3
 
+
 def test_stack_s_z_repeatedly():
     pass
 
+
 def test_stack_z_i():
     g3 = tetris.Grid()
-    g3.drop_shape(shapes.Z,0)
+    g3.drop_shape(shapes.Z, 0)
     assert g3.highest() == 2
     g3.drop_shape(shapes.I, 2)
     assert g3.highest() == 2
+
 
 def test_stack_i_s():
     g4 = tetris.Grid()
@@ -155,6 +174,7 @@ def test_stack_i_s():
     assert g4.highest() == 1
     g4.drop_shape(shapes.S, 0)
     assert g4.highest() == 2
+
 
 def test_stack_i_z():
     g = tetris.Grid()
@@ -169,6 +189,7 @@ def test_stack_i_z():
     g2.drop_shape(shapes.Z, 3)
     assert g2.highest() == 2
 
+
 def test_stack_t():
     g = tetris.Grid()
     g.drop_shape(shapes.T, 0)
@@ -180,21 +201,24 @@ def test_stack_t():
     g.drop_shape(shapes.T, 6)
     assert g.highest() == 5
 
+
 def test_stack_s():
     g = tetris.Grid()
     height = 2
     for i in range(tetris.Grid.ROW_WIDTH - shapes.S.width - 1, -1, -1):
         g.drop_shape(shapes.S, i)
-        assert g.highest() == height 
+        assert g.highest() == height
         height += 1
+
 
 def test_stack_z():
     g = tetris.Grid()
     height = 2
     for i in range(tetris.Grid.ROW_WIDTH - shapes.Z.width):
         g.drop_shape(shapes.Z, i)
-        assert g.highest() == height 
+        assert g.highest() == height
         height += 1
+
 
 def test_stack_z_t():
     g = tetris.Grid()
@@ -206,8 +230,9 @@ def test_stack_z_t():
     g2 = tetris.Grid()
     g2.drop_shape(shapes.Z, 2)
     g2.drop_shape(shapes.T, 0)
-    print (g2)
+    print(g2)
     assert g2.highest() == 3
+
 
 def test_stack_t_s():
     g = tetris.Grid()
@@ -220,6 +245,7 @@ def test_stack_t_s():
     g2.drop_shape(shapes.S, 2)
     g2.drop_shape(shapes.T, 1)
     assert g2.highest() == 3
+
 
 SAMPLE_INPUT = """
 Q0
@@ -269,10 +295,9 @@ ANSWERS = [
     3,
 ]
 
+
 def test_sample_input():
     for line, expected_result in zip(SAMPLE_INPUT, ANSWERS):
         g = tetris.Grid()
         tetris.process_line(g, line)
         assert g.highest() == expected_result
-        
-    

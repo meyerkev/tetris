@@ -1,4 +1,10 @@
+"""
+Test the shapes module for correctness
+"""
+# pylint: disable=missing-function-docstring,invalid-name
+
 import shapes
+
 
 def test_q():
     q = shapes.get_shape("Q")
@@ -7,12 +13,14 @@ def test_q():
     assert q.tops == [2, 2]
     assert q.bottoms == [0, 0]
 
+
 def test_s():
     s = shapes.get_shape("S")
     assert s.width == 3
     assert s.height == 2
     assert s.tops == [1, 2, 2]
     assert s.bottoms == [0, 0, 1]
+
 
 def test_z():
     z = shapes.get_shape("Z")
@@ -21,12 +29,14 @@ def test_z():
     assert z.tops == [2, 2, 1]
     assert z.bottoms == [1, 0, 0]
 
+
 def test_t():
     t = shapes.get_shape("T")
     assert t.width == 3
     assert t.height == 2
     assert t.tops == [2, 2, 2]
     assert t.bottoms == [1, 0, 1]
+
 
 def test_i():
     i = shapes.get_shape("I")
@@ -35,6 +45,7 @@ def test_i():
     assert i.tops == [1, 1, 1, 1]
     assert i.bottoms == [0, 0, 0, 0]
 
+
 def test_l():
     l = shapes.get_shape("L")
     assert l.width == 2
@@ -42,12 +53,14 @@ def test_l():
     assert l.tops == [3, 1]
     assert l.bottoms == [0, 0]
 
+
 def test_j():
     j = shapes.get_shape("J")
     assert j.width == 2
     assert j.height == 3
     assert j.tops == [1, 3]
     assert j.bottoms == [0, 0]
+
 
 def test_get_shape():
     assert shapes.get_shape("Q") == shapes.Q

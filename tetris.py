@@ -1,13 +1,5 @@
 #!/usr/bin/env python3
-
-import argparse
-import shapes
-from sys import stdin
-from typing import List
-
 """
-TODO: Clean this up
-
 A tetris board is 10 columns wide, indexed to 0-9
 
 Rows drop as rows
@@ -24,12 +16,19 @@ Your program must process a text file of lines each representing a sequence of
 pieces entering the grid. For each line of the input file, your program should output
 the resulting height of the remaining blocks within the grid.
 """
+
+import argparse
+from sys import stdin
+from typing import List
+import shapes
+
+
 class Grid():
     """
     So let's talk about how grids work. We have a 2D array of squares, and we want to insert squares into the top of our grid.
-    
-    Now in real Tetris, they hard-code the number of rows and if you fill the grid, you fill the grid. 
-     
+
+    Now in real Tetris, they hard-code the number of rows and if you fill the grid, you fill the grid.
+
     But ours must be infinite bounded by our 128GB of RAM and 1TB Swap SSD.
 
     So the bottom row is row 0 and the top row is row N.  We want to insert squares into the top of our grid.
@@ -43,8 +42,8 @@ class Grid():
     # 3. s == EMPTY_SQUARE to mean that the square is empty
     #
     # So what I'm saying is that None cannot work here
-    # 
-    # As a side note, I tend to play WAY crazier typing games in Python 
+    #
+    # As a side note, I tend to play WAY crazier typing games in Python
     # with duck typing than I do in other languages
     # So our typing can support pretty much anything here
     EMPTY_SQUARE = 0
@@ -52,39 +51,46 @@ class Grid():
     def __init__(self) -> None:
         """
         Initialize the grid
-        
+
         A grid is a list of list of rows and a list of tops which correspond to the highest point in each column
         """
         self.rows = []
         self.tops = [0] * self.ROW_WIDTH
         self.move_count = 0
 
+    def __getitem__(self, item):
+        return self.get_row(item)
+
     def get_row(self, index: int) -> List:
-        # TODO: What I really ought to do is come up with a tricky way to do this with a defaultdict
-        # But instead what we're going to do is that if you ask for a row that doesn't exist, we're going to create it
-        # And every row before it
-        # So make sure to allocate your rows before you start dropping shapes
+        """
+        Return the row at the given index, creating it if needed
+        """
+        # I did a tricky thing with __getitem__ to allocate my rows for me, but still be careful to pre-allocate rows
+        # if you're doing work on self.grid directly.
         for _ in range(index - len(self.rows) + 1):
             self.rows.append(self.new_row())
         return self.rows[index]
-    
+
     @classmethod
-    def new_row(self):
-        return [self.EMPTY_SQUARE] * self.ROW_WIDTH
-    
+    def new_row(cls):
+        """Return a new row that is empty and the correct width"""
+        return [cls.EMPTY_SQUARE] * cls.ROW_WIDTH
+
     @classmethod
     def row_full(cls, row) -> bool:
+        """Is the row full?"""
         return sum(x != cls.EMPTY_SQUARE for x in row) == cls.ROW_WIDTH
-    
+
     @classmethod
     def row_empty(cls, row) -> bool:
+        """Is the row empty?"""
         return all(x == cls.EMPTY_SQUARE for x in row) == cls.ROW_WIDTH
 
-    def drop_shape(self, shape : shapes.Shape, column : int) -> None:
+    def drop_shape(self, shape: shapes.Shape, column: int) -> None:
         """
         Given a grid, a new shape to add to the grid, and an input column, drop the shape into the grid
         """
-        # For debugging, I find this to be a useful helper.  
+        # For debugging, I find this to be a useful helper.
         # Where did these squares come from?
         self.move_count += 1
 
@@ -92,7 +98,7 @@ class Grid():
         drop_height = 0
 
         # A shape is a partial infill of a rectangular bounding box
-        # So we need to find that bounding box using the highest point in each column 
+        # So we need to find that bounding box using the highest point in each column
         # accounting for missing squares on the bottom of the shape
         for i in range(shape.width):
             col = column + i
@@ -103,44 +109,50 @@ class Grid():
 
         # Mark all the squares as full, creating new rows if needed
         for square in shape.squares:
-            self.get_row(square[1] + drop_height)[square[0] + column] = self.move_count
+            self.get_row(
+                square[1] +
+                drop_height)[
+                square[0] +
+                column] = self.move_count
             # self.rows[square[1] + drop_height][square[0] + column] = self.FULL_SQUARE
-        
+
         # Scan every row that had new squares added to it to see if they're full or not
         # I'm doing it in reverse order because if I remove row 7, row 8 becomes row 7
         # And then when I remove row "8", I'm actually removing what used to be row 9
         # So we do this in reverse order to avoid that
         to_remove = []
-        for row_index in range(drop_height + shape.height, drop_height - 1, -1):
+        for row_index in range(
+                drop_height + shape.height, drop_height - 1, -1):
             row = self.rows[row_index]
             if self.row_full(row):
                 to_remove.append(row_index)
 
         # If we don't need to remove any rows, we can add the shape to calculate the new tops array and be done
-        # Otherwise, we need to account for the removed rows and recalculate the tops array from scratch
+        # Otherwise, we need to account for the removed rows and recalculate
+        # the tops array from scratch
         if not to_remove:
             # Update the tops array
-            # It's the same idea as before, but we're accounting for missing squares on the top of the shape now
+            # It's the same idea as before, but we're accounting for missing
+            # squares on the top of the shape now
             for i in range(shape.width):
                 col = column + i
-                self.tops[col] = max(self.tops[col], shape.tops[i] + drop_height)
+                self.tops[col] = max(
+                    self.tops[col], shape.tops[i] + drop_height)
             return
 
         # assert to_remove and (to_remove == sorted(to_remove, reverse=True))
-        lowest_removed = to_remove[-1]
         for row_index in to_remove:
             self.rows.pop(row_index)
 
         # Then update the tops array
-        for column in range(self.ROW_WIDTH):
+        for column_index in range(self.ROW_WIDTH):
             # Find the first row that's not empty
             for row_index in range(len(self.rows) - 1, -1, -1):
-                if self.rows[row_index][column] != self.EMPTY_SQUARE:
-                    self.tops[column] = row_index + 1
+                if self.rows[row_index][column_index] != self.EMPTY_SQUARE:
+                    self.tops[column_index] = row_index + 1
                     break
             else:
-                self.tops[column] = 0
-
+                self.tops[column_index] = 0
 
     def highest(self) -> int:
         """
@@ -159,7 +171,6 @@ class Grid():
         # This is a pretty-printer for the grid
         # It's not really important to the algorithm, but it's useful for debugging
         ###
-
         '''
         # For debugging purposes, I'm doing a neat little trick
         # For every move, the squares that were added are marked with the move number
@@ -175,19 +186,28 @@ class Grid():
         '''
         if not self.highest():
             return "Empty grid"
-        
+
         # I could do " ".join, but this is a deliberate choice to indent the grid by 1 space
         # Oddly, it's easier on my eyes to read
         square_len = len(str(self.move_count)) + 1
+
         def print_row(row):
             # https://www.tutorialspoint.com/how-to-get-a-string-left-padded-with-zeros-in-python
-            return " ".join((str(x) if x else "-").rjust(square_len, " ") for x in row)
-        
-        return "\n".join(print_row(self.rows[i]) for i in range(self.highest() - 1, -1, -1))
-            
+            return " ".join((str(x) if x else "-").rjust(square_len, " ")
+                            for x in row)
 
-# Because I'm storing state as a grid object, I'm making a call to return None here
+        return "\n".join(
+            print_row(
+                self.rows[i]) for i in range(
+                self.highest() - 1, -1, -1))
+
+
+# Because I'm storing state as a grid object, I'm making a call to return
+# None here
 def process_line(grid: Grid, line: str, debug: bool = False) -> None:
+    """
+    Given a grid and a line of input, process the line of input into the grid
+    """
     line = line.rstrip()
     for move in line.split(","):
         # All shapes are single-character
@@ -203,18 +223,22 @@ def process_line(grid: Grid, line: str, debug: bool = False) -> None:
             print("Highest: " + str(grid.highest()))
             print()
 
+
 def parse_args() -> argparse.Namespace:
+    """I added an optional debug flag to help with debugging"""
     parser = argparse.ArgumentParser(description="Tetris solver for DRW")
     parser.add_argument("--debug", action="store_true", help="Debug mode")
     return parser.parse_args()
 
+
 def main():
+    """Main function"""
     debug = parse_args().debug
     for line in stdin:
         grid = Grid()
         process_line(grid, line, debug)
         print(grid.highest())
-    
+
+
 if __name__ == "__main__":
     main()
-

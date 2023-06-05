@@ -1,10 +1,18 @@
+"""
+A separate module for shapes, shape lookup, and shape creation
+"""
 from collections import defaultdict
+
 
 class Shape():
     """
-    squares : list -> every square we care about
-    bottoms -> every square we care about that is the lowest square in its column
+    Shapes are defined by a list of squares and a list of bottoms
+    Each square is a tuple of (x, y) coordinates defined as the offset from the lower left corner of the rectangle bounding the shape
+    #ach bottom is a y coordinate defined as the offset from the bottom of
+    the rectangle bounding the shape using the index of the list as a column
+    index
     """
+
     def __init__(self, squares):
         self.squares = squares
 
@@ -22,30 +30,34 @@ class Shape():
             # NOTE THE +1 HERE
             calc_tops[square[0]] = max(calc_tops[square[0]], square[1] + 1)
 
-        # convert these defaultdicts to lists 
+        # convert these defaultdicts to lists
         self.bottoms = [calc_bottoms[i] for i in range(self.width)]
         self.tops = [calc_tops[i] for i in range(self.width)]
 
-# Shapes are defined by a list of squares and a list of bottoms
-# Each square is a tuple of (x, y) coordinates defined as the offset from the lower left corner of the rectangle bounding the shape
-# Each bottom is a y coordinate defined as the offset from the bottom of the rectangle bounding the shape using the index of the list as a column index
 
 def get_shape(name):
     """
     The basic idea here is that we're going to define a bunch of global variables
     But our inputs are strings
     So this lets us lookup our global variables by string name
-    
+
     https://stackoverflow.com/questions/3061/calling-a-function-of-a-module-by-using-its-name-a-string
     """
     try:
-        # We're being too tricky here, so we need to ensure we're only returning Shapes
+        # We're being too tricky here, so we need to ensure we're only
+        # returning Shapes
         ret = globals()[name]
         if isinstance(ret, Shape):
             return ret
         raise ValueError("Shape not found: " + name)
-    except KeyError:
-        raise ValueError("Shape not found: " + name)
+    except KeyError as exc:
+        raise ValueError("Shape not found: " + name) from exc
+
+# This is not alphabetical, but it's the order we were given
+# in the input file which is in certain sublte ways more important
+
+# pylint: disable=pointless-string-statement
+
 
 """
 XX
